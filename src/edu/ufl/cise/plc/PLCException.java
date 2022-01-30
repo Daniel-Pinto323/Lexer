@@ -1,6 +1,4 @@
-package edu.ufl.cise.plc;
-
-/**
+package edu.ufl.cise.plc; /**
  * This is the superclass of all the exceptions that will be thrown in our project
  */
 
