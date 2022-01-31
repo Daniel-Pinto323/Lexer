@@ -6,10 +6,6 @@ public class token implements IToken{
     int row;
     int col;
 
-    public token(){
-
-
-    }
 
     public token(String x){
 
@@ -28,22 +24,23 @@ public class token implements IToken{
          return Kind.ASSIGN;
      }
 
-     if(token == "=="){
+     else if(token == "=="){
 
          return Kind.EQUALS;
      }
 
-     if(token == " ") {
+     else if(token == " ") {
          return Kind.EOF;
+     }else{
+         return Kind.IDENT;
      }
 
-     return null;
    }
 
    public String getText(){
 
 
-       return null;
+       return token;
    }
 
    public SourceLocation getSourceLocation(){
