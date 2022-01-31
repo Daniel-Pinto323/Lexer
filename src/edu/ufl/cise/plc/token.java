@@ -5,45 +5,29 @@ public class token implements IToken{
     String token;
     int row;
     int col;
+    Kind kind;
 
-    public token(){
-
-
-    }
 
     public token(String x){
 
         token = x;
     }
 
-    public token(String x, int r, int c, Kind kind) {
+    public token(String x, int r, int c, Kind k) {
         token = x;
         row = r;
         col = c;
+        kind = k;
     }
 
    public Kind getKind(){
-
-     if(token == "="){
-         return Kind.ASSIGN;
-     }
-
-     if(token == "=="){
-
-         return Kind.EQUALS;
-     }
-
-     if(token == " ") {
-         return Kind.EOF;
-     }
-
-     return null;
+     return kind;
    }
 
    public String getText(){
 
 
-       return null;
+       return token;
    }
 
    public SourceLocation getSourceLocation(){
