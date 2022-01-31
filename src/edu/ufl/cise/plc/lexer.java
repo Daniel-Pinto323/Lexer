@@ -3,7 +3,7 @@ import java.util.ArrayList;
 
 class lexer implements ILexer{
 ArrayList<token> tokens = new ArrayList<token>(20);
-String currTok;
+String currTok  = "";
 
 
     public lexer(String input) {
@@ -11,8 +11,7 @@ String currTok;
     }
 
     public void sepTok(String program){
-        boolean letters = false;
-        boolean equals = false;
+
         int row = 0;
         int column = 0;
 
@@ -27,20 +26,31 @@ String currTok;
 
             }
 
-                  //IDENTIFIERS AND RESERVED WORDS
+            //IDENTIFIERS AND RESERVED WORDS
             if (Character.isLetter(program.charAt(i))) {
-                   currTok += program.charAt(i);
-                   letters = true;
-               }
-            if (!Character.isLetter(program.charAt(i)) && letters && Character.isDigit(program.charAt(i))) {
-                   currTok += (program.charAt(i));
+                //if the character is a letter
+
+                while(Character.isLetter(program.charAt(i)) || Character.isDigit(program.charAt(i))){
+                    currTok += program.charAt(i);
+                        i+=1;
+                 }
+
+                tokens.add(new token(currTok, row, column));
                }
 
-            if (!Character.isLetter(program.charAt(i)) && !Character.isDigit(program.charAt(i)) && letters) {
-                   letters = false;
-               }
+            //INT-LIT
 
-               //ASSIGN AND EQUALS
+            if(Character.isDigit(program.charAt(i))){
+
+                while(Character.isDigit(program.charAt(i))){
+                    
+
+                }
+            }
+
+
+
+            //ASSIGN AND EQUALS
             if (program.charAt(i) == '=') {
 
                 if (program.charAt(i + 1) == '=') {
@@ -53,9 +63,11 @@ String currTok;
                     tokens.add(new token("=", row, column));
                 }
              }
+
           column++;
         }
        tokens.add(new token(" "));
+
     }
 
     public IToken next(){
