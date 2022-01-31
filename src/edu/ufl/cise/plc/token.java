@@ -16,7 +16,7 @@ public class token implements IToken{
         token = x;
     }
 
-    public token(String x, int r, int c){
+    public token(String x, int r, int c, Kind kind) {
         token = x;
         row = r;
         col = c;
