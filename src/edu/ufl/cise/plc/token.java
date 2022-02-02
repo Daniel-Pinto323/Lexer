@@ -2,66 +2,54 @@ package edu.ufl.cise.plc;
 
 public class token implements IToken{
 
-    String token;
+    String tokenString;
     int row;
     int col;
     Kind kind;
 
-
-    public token(String x){
-
-        token = x;
+    public token(Kind k){
+        kind = k;
     }
 
-    public token(String x, int r, int c, Kind k) {
-        token = x;
+
+    public token(String x, int r, int c, Kind k){
+        tokenString = x;
         row = r;
         col = c;
         kind = k;
     }
 
-   public Kind getKind(){
-     return kind;
-   }
+    public Kind getKind(){
+        return kind;
+    }
 
-   public String getText(){
+    public String getText(){
+        return tokenString;
+    }
 
-
-       return token;
-   }
-
-   public SourceLocation getSourceLocation(){
-
-       return new SourceLocation(row, col);
-   }
+    public SourceLocation getSourceLocation(){
+        return new SourceLocation(row, col);
+    }
 
 
 
-   public int getIntValue(){
-
-
-       return 2;
-   }
-
-
-
-   public float getFloatValue(){
+    public int getIntValue(){
+        return Integer.valueOf(tokenString);
+    }
 
 
 
-       return 2;
-   }
+    public float getFloatValue(){
+        Integer test = Integer.valueOf(tokenString);
+        return test;
+    }
 
 
-   public boolean getBooleanValue(){
+    public boolean getBooleanValue(){
+        return true;
+    }
 
-
-       return true;
-   }
-
-   public String getStringValue(){
-
-
-       return "";
-   }
+    public String getStringValue(){
+        return "";
+    }
 }

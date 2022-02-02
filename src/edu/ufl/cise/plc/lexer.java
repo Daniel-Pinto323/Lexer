@@ -15,8 +15,10 @@ String currTok  = "";
         int row = 0;
         int column = 0;
 
+        int i = 0;
+
         //this function will break the tokens up and store them in a container
-        for(int i = 0; i < program.length(); i++) {
+        while (i < program.length() - 1) {
             boolean continueFlag = true;
 
             // STRING LITs (begin with open quotes ' " ')
@@ -56,7 +58,7 @@ String currTok  = "";
                                 currTok += "\"";
                                 break;
                             case '\'':
-                                currTok += "\'";
+                                currTok += "'";
                                 break;
                             case '\\':
                                 currTok += "\\";
@@ -106,56 +108,66 @@ String currTok  = "";
                 }
             }
 
-            //IDENTIFIERS AND RESERVED WORDS
-            if (Character.isLetter(program.charAt(i))) {
-                //if the character is a letter
+            //ASSIGN AND EQUALS
+            if (program.charAt(i) == '=') {
 
-                while(Character.isLetter(program.charAt(i)) || Character.isDigit(program.charAt(i))){
-                    currTok += program.charAt(i);
-                    i++;
-                 }
-
-                tokens.add(new token(currTok, row, column, IToken.Kind.IDENT));
+                if (program.charAt(i + 1) == '=') {
+                    currTok = "==";
+                    tokens.add(new token("==", row, column, IToken.Kind.EQUALS));
+                    i++;//skips the following character
+                    column++;//accounts for the column that was skipped
+                }else{
+                    currTok = "=";
+                    tokens.add(new token("=", row, column, IToken.Kind.ASSIGN));
+                }
+                i++;
+                column++;
             }
 
             //INT-LIT
-
             if(Character.isDigit(program.charAt(i))){
-
+                int startPos = column;
                 while(Character.isDigit(program.charAt(i))){
-                    
 
+                    currTok+= program.charAt(i);
+                    i++;
+                    column++;
                 }
+                tokens.add(new token(currTok, row, startPos, IToken.Kind.INT_LIT));
+                currTok = "";
             }
 
 
-
-            //ASSIGN AND EQUALS
-            if (program.charAt(i) == '=') {
-                if (program.charAt(i + 1) == '=') {
-                    currTok = "==";
-                    tokens.add(new token(currTok, row, column, IToken.Kind.EQUALS));
-                    i++;//skips the following character
-                    column++;//accounts for the column that was skipped
+            //IDENTIFIERS AND RESERVED WORDS
+            if (Character.isLetter(program.charAt(i))) {
+                //if the character is a letter
+                int startPos = column;
+                while(Character.isLetter(program.charAt(i)) || Character.isDigit(program.charAt(i))){
+                    currTok += program.charAt(i);
+                    i++;
+                    column++;
                 }
-                else{
-                    currTok = "=";
-                    tokens.add(new token(currTok, row, column, IToken.Kind.ASSIGN));
-                }
-             }
 
-          column++;
+                tokens.add(new token(currTok, row, startPos, IToken.Kind.IDENT));
+                currTok = "";
+            }
+
+
+            if(program.charAt(i) == ' '){
+                i++;
+                column++;
+            }
         }
        tokens.add(new token(null, row, column, IToken.Kind.EOF));
     }
 
     public IToken next(){
-
+        tokens.add(new token(IToken.Kind.EOF));
         token retTok = tokens.get(0);
         tokens.remove(0);
 
         return retTok;
-}
+    }
 
 
     public IToken peek(){
