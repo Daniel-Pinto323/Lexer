@@ -2,6 +2,7 @@
 COP4020 - Creating a Lexer
 
 Files:
+
 ILexer.java
   - Interface for the lexer itself
   - lexer class should implement this interface
