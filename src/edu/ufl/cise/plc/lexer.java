@@ -10,9 +10,8 @@ String currTok  = "";
         sepTok(input);
     }
 
-    public void sepTok(String program){
-
-        int row = 0;
+    public void sepTok(String program) {
+        int lineNum = 0;
         int column = 0;
 
         int i = 0;
@@ -23,7 +22,7 @@ String currTok  = "";
 
             // STRING LITs (begin with open quotes ' " ')
             if (program.charAt(i) == '\"') {
-                int startRow = row;
+                int startLine = lineNum;
                 int startCol = column;
                 boolean danglingQuote = true;
                 i++;
@@ -35,38 +34,28 @@ String currTok  = "";
                         // ESCAPE SEQUENCES
                         currTok += "\\";
                         switch (program.charAt(i + 1)) {
-                            case 'b':
-                                currTok += "b";
-                                break;
-                            case 't':
-                                currTok += "t";
-                                break;
-                            case 'n':
+                            case 'b' -> currTok += "b";
+                            case 't' -> currTok += "t";
+                            case 'n' -> {
                                 currTok += "n";
-                                row++;
+                                lineNum++;
                                 column = 0;
-                                break;
-                            case 'f':
-                                currTok += "f";
-                                break;
-                            case 'r':
-                                currTok += "r";
-                                row++;
+                            }
+                            case 'f' -> currTok += "f";
+                            case 'r' -> {
+                                // assuming all instances of '\r' are followed by '\n'
+                                currTok += "r\\n";
+                                lineNum += 3;
                                 column = 0;
-                                break;
-                            case '\"':
-                                currTok += "\"";
-                                break;
-                            case '\'':
-                                currTok += "'";
-                                break;
-                            case '\\':
-                                currTok += "\\";
-                                break;
-                            default:
-                                tokens.add(new token(currTok, startRow, startCol, IToken.Kind.ERROR));
+                            }
+                            case '\"' -> currTok += "\"";
+                            case '\'' -> currTok += "'";
+                            case '\\' -> currTok += "\\";
+                            default -> {
+                                tokens.add(new token(currTok, startLine, startCol, IToken.Kind.ERROR));
                                 // throw PLCException(row, column, "ERROR: invalid escape sequence");
                                 continueFlag = false;
+                            }
                         }
                         // adding to i and column to account for escape sequences being 2 characters
                         i++;
@@ -82,10 +71,10 @@ String currTok  = "";
                     // potentially requires throwing the error rather than adding ERROR token
                     if (i == program.length() - 1) {
                         if (danglingQuote) {
-                            tokens.add(new token(currTok, startRow, startCol, IToken.Kind.ERROR));
+                            tokens.add(new token(currTok, startLine, startCol, IToken.Kind.ERROR));
                         }
                         else {
-                            tokens.add(new token(currTok, row, column, IToken.Kind.STRING_LIT));
+                            tokens.add(new token(currTok, lineNum, column, IToken.Kind.STRING_LIT));
                         }
                         continueFlag = false;
                     }
@@ -97,7 +86,7 @@ String currTok  = "";
 
             if (program.charAt(i) == '@') {
                 // handling invalid character
-                tokens.add(new token(currTok, row, column, IToken.Kind.ERROR));
+                tokens.add(new token(currTok, lineNum, column, IToken.Kind.ERROR));
                 // throw new LexicalException("exception"); // not sure how to throw exceptions properly
             }
             if (program.charAt(i) == '#') {
@@ -113,12 +102,12 @@ String currTok  = "";
 
                 if (program.charAt(i + 1) == '=') {
                     currTok = "==";
-                    tokens.add(new token("==", row, column, IToken.Kind.EQUALS));
+                    tokens.add(new token("==", lineNum, column, IToken.Kind.EQUALS));
                     i++;//skips the following character
                     column++;//accounts for the column that was skipped
                 }else{
                     currTok = "=";
-                    tokens.add(new token("=", row, column, IToken.Kind.ASSIGN));
+                    tokens.add(new token("=", lineNum, column, IToken.Kind.ASSIGN));
                 }
                 i++;
                 column++;
@@ -128,12 +117,11 @@ String currTok  = "";
             if(Character.isDigit(program.charAt(i))){
                 int startPos = column;
                 while(Character.isDigit(program.charAt(i))){
-
                     currTok+= program.charAt(i);
                     i++;
                     column++;
                 }
-                tokens.add(new token(currTok, row, startPos, IToken.Kind.INT_LIT));
+                tokens.add(new token(currTok, lineNum, startPos, IToken.Kind.INT_LIT));
                 currTok = "";
             }
 
@@ -148,7 +136,7 @@ String currTok  = "";
                     column++;
                 }
 
-                tokens.add(new token(currTok, row, startPos, IToken.Kind.IDENT));
+                tokens.add(new token(currTok, lineNum, startPos, IToken.Kind.IDENT));
                 currTok = "";
             }
 
@@ -158,7 +146,7 @@ String currTok  = "";
                 column++;
             }
         }
-       tokens.add(new token(null, row, column, IToken.Kind.EOF));
+       tokens.add(new token(null, lineNum, column, IToken.Kind.EOF));
     }
 
     public IToken next(){
