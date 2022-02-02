@@ -17,8 +17,9 @@ String currTok  = "";
 
         int i = 0;
 
+        System.out.println(program.length());
         //this function will break the tokens up and store them in a container
-        while (i < program.length() - 1) {
+        while (i < program.length()) {
             boolean continueFlag = true;
 
             // STRING LITs (begin with open quotes ' " ')
@@ -135,12 +136,13 @@ String currTok  = "";
                 }
                 tokens.add(new token(currTok, row, startPos, IToken.Kind.INT_LIT));
                 currTok = "";
+
             }
 
 
             //IDENTIFIERS AND RESERVED WORDS
             if (Character.isLetter(program.charAt(i))) {
-                //if the character is a letter
+                                //if the character is a letter
                 int startPos = column;
                 while(Character.isLetter(program.charAt(i)) || Character.isDigit(program.charAt(i))){
                     currTok += program.charAt(i);
@@ -150,14 +152,26 @@ String currTok  = "";
 
                 tokens.add(new token(currTok, row, startPos, IToken.Kind.IDENT));
                 currTok = "";
+
             }
 
 
-            if(program.charAt(i) == ' '){
+            if(program.charAt(i) == ' ') {
                 i++;
                 column++;
             }
-        }
+
+            if(program.charAt(i) == '\n'){
+
+
+                   i+=2;
+                   column = 1;
+                   row++;
+
+
+            }
+
+         }
        tokens.add(new token(null, row, column, IToken.Kind.EOF));
     }
 
