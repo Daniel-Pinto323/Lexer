@@ -163,16 +163,18 @@ String currTok  = "";
 
             if(program.charAt(i) == '\n'){
 
-
                    i+=2;
                    column = 1;
                    row++;
-
-
             }
-
          }
        tokens.add(new token(null, row, column, IToken.Kind.EOF));
+    }
+
+
+    public IToken.Kind isReserved(){
+
+
     }
 
     public IToken next(){
