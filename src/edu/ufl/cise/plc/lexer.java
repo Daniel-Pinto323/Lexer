@@ -195,25 +195,9 @@ String currTok  = "";
                     column = 0;
                     i++; // to account for the assumption that '\r' will always be followed by '\n'
                 }
-                default -> {
-                    continue;
-                }
-            }
-
-
-
-            if(program.charAt(i) == ' ') {
-                i++;
-                column++;
-            }
-
-            if(program.charAt(i) == '\n'){
-                   i+=2;
-                   column = 1;
-                   row++;
             }
          }
-       tokens.add(new token(null, row, column, IToken.Kind.EOF));
+       tokens.add(new token(null, lineNum, column, IToken.Kind.EOF));
     }
 
     public IToken next() throws LexicalException {
