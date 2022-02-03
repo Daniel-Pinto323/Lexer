@@ -76,9 +76,9 @@ String currTok  = "";
                     } else if (program.charAt(i) == '\"') {
                         danglingQuote = !danglingQuote;
                         tokens.add(new token(currTok, startLine, startCol, IToken.Kind.STRING_LIT));
+                        continueFlag = false;
                         i++;
                         column++;
-                        continueFlag = false;
                     }
 
                     // if while loop iterates to end of program without finding end quote -> add ERROR token + break
@@ -95,7 +95,6 @@ String currTok  = "";
 
             // HANDLING INVALID CHARACTER '@'
             if (program.charAt(i) == '@') {
-                // handling invalid character
                 currTok += '@';
                 tokens.add(new token(currTok, lineNum, column, IToken.Kind.ERROR));
                 // throw new LexicalException("exception"); // not sure how to throw exceptions properly
@@ -106,19 +105,15 @@ String currTok  = "";
             switch (program.charAt(i)) {
                 case '*' -> {
                     tokens.add(new token("*", lineNum, column, IToken.Kind.TIMES));
-
                     i++;
                     column++;
                 }
                 case '+' -> {
-
                     tokens.add(new token("+", lineNum, column, IToken.Kind.PLUS));
-
                     i++;
                     column++;
                 }
                 case '-' -> {
-
                     if(program.charAt(i + 1) == '>') {
                         tokens.add(new token("->", lineNum, column, IToken.Kind.RARROW));
                         i += 2;
@@ -133,25 +128,19 @@ String currTok  = "";
                 case '/' -> {
                     tokens.add(new token("/", lineNum, column, IToken.Kind.DIV));
                     i++;
-
                     column++;
                 }
                 case '%' -> {
-
                     tokens.add(new token("%", lineNum, column, IToken.Kind.MOD));
                     i++;
-
                     column++;
                 }
                 case '|' -> {
-
                     tokens.add(new token("|", lineNum, column, IToken.Kind.OR));
                     i++;
-
                     column++;
                 }
                 case '!' -> {
-
                     if(program.charAt(i + 1) == '='){
                         tokens.add(new token("!=", lineNum, column, IToken.Kind.NOT_EQUALS));
                         i += 2;
@@ -159,13 +148,11 @@ String currTok  = "";
                     }
                     else {
                         tokens.add(new token("!", lineNum, column, IToken.Kind.BANG));
-
                         i++;
                         column++;
                     }
                 }
                 case '<' -> {
-
                     if(program.charAt(i + 1) == '=') {
                         tokens.add(new token("<=", lineNum, column, IToken.Kind.LE));
                         i += 2;
@@ -183,13 +170,11 @@ String currTok  = "";
                     }
                     else {
                         tokens.add(new token("<", lineNum, column, IToken.Kind.LT));
-
                         i++;
                         column++;
                     }
                 }
                 case '>' -> {
-
                     if(program.charAt(i + 1) == '=') {
                         tokens.add(new token(">=", lineNum, column, IToken.Kind.GE));
                         i += 2;
@@ -202,27 +187,21 @@ String currTok  = "";
                     }
                     else {
                         tokens.add(new token(">", lineNum, column, IToken.Kind.GT));
-
                         i++;
                         column++;
                     }
                 }
                 case ',' -> {
-
                     tokens.add(new token(",", lineNum, column, IToken.Kind.COMMA));
-
                     i++;
                     column++;
                 }
                 case '^' -> {
-
                     tokens.add(new token("^", lineNum, column, IToken.Kind.RETURN));
-
                     i++;
                     column++;
                 }
                 case '=' -> {
-
                     if(program.charAt(i + 1) == '='){
                         tokens.add(new token("==",lineNum, column, IToken.Kind.EQUALS));
                         i += 2;
@@ -230,56 +209,46 @@ String currTok  = "";
                     }
                     else {
                         tokens.add(new token("=", lineNum, column, IToken.Kind.ASSIGN));
-
                         i++;
                         column++;
                     }
                 }
-
-                case '(' ->{
+                case '(' -> {
                     tokens.add(new token("(", lineNum, column, IToken.Kind.LPAREN));
 
                     i++;
                     column++;
                 }
-
-                case ')' ->{
+                case ')' -> {
                     tokens.add(new token(")", lineNum, column, IToken.Kind.RPAREN));
 
                     i++;
                     column++;
                 }
-
-                case '[' ->{
+                case '[' -> {
                     tokens.add(new token("[", lineNum, column, IToken.Kind.LSQUARE));
-
                     i++;
                     column++;
                 }
-
-                case ']' ->{
+                case ']' -> {
                     tokens.add(new token("]", lineNum, column, IToken.Kind.RSQUARE));
                     i++;
                     column++;
                 }
                 case '&' -> {
                     tokens.add(new token("&", lineNum, column, IToken.Kind.AND));
-
                     i++;
                     column++;
                 }
 
             }
 
-
             // HANDLING COMMENTS STARTING WITH CHARACTER '#'
             if (program.charAt(i) == '#') {
-                // handling comments
                 startLine = lineNum;
                 startCol = column;
                 continueFlag = true;
                 while (continueFlag) {
-                    i++;
                     if (program.charAt(i) == '\\') {
                         currTok += "\\";
                         switch (program.charAt(i + 1)) {
@@ -287,12 +256,14 @@ String currTok  = "";
                                 currTok += "n";
                                 lineNum++;
                                 column = 1;
+                                i++;
                             }
                             case 'r' -> {
                                 // assuming all instances of '\r' are followed by '\n'
                                 currTok += "r\\n";
                                 lineNum++;
                                 column = 1;
+                                i++;
                             }
                             default -> {
                                 tokens.add(new token(currTok, startLine, startCol, IToken.Kind.ERROR));
@@ -301,6 +272,7 @@ String currTok  = "";
                         }
                         continueFlag = false;
                     }
+                    i++;
                 }
                 currTok = "";
             }
@@ -376,12 +348,12 @@ String currTok  = "";
                 case '\n' -> {
                     lineNum++;
                     column = 1;
-                    i += 2;
+                    i++;
                 }
                 case '\r' -> {
                     lineNum++;
                     column = 1;
-                    i += 4; // to account for the assumption that '\r' will always be followed by '\n'
+                    i += 2; // to account for the assumption that '\r' will always be followed by '\n'
                 }
                 case ' ' -> {
                     i++;
