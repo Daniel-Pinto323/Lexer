@@ -45,7 +45,7 @@ String currTok  = "";
                             case 'n' -> {
                                 currTok += "n";
                                 lineNum++;
-                                column = 0;
+                                column = 1;
                             }
                             case 'f' -> {
                                 currTok += "f";
@@ -55,7 +55,7 @@ String currTok  = "";
                                 // assuming all instances of '\r' are followed by '\n'
                                 currTok += "r\\n";
                                 lineNum++;
-                                column = 0;
+                                column = 1;
                             }
                             case '\"' -> {
                                 currTok += "\"";
@@ -88,7 +88,7 @@ String currTok  = "";
                         if (danglingQuote) {
                             tokens.add(new token(currTok, startLine, startCol, IToken.Kind.ERROR));
                         } else {
-                            tokens.add(new token(currTok, lineNum, column, IToken.Kind.STRING_LIT));
+                            tokens.add(new token(currTok, startLine, startCol, IToken.Kind.STRING_LIT));
                         }
                         continueFlag = false;
                     }
@@ -121,13 +121,13 @@ String currTok  = "";
                             case 'n' -> {
                                 currTok += "n";
                                 lineNum++;
-                                column = 0;
+                                column = 1;
                             }
                             case 'r' -> {
                                 // assuming all instances of '\r' are followed by '\n'
                                 currTok += "r\\n";
                                 lineNum++;
-                                column = 0;
+                                column = 1;
                             }
                             default -> {
                                 tokens.add(new token(currTok, startLine, startCol, IToken.Kind.ERROR));
@@ -186,14 +186,19 @@ String currTok  = "";
 
             // HANDLING WHITE-SPACE
             switch(program.charAt(i)) {
+                case ' ' -> {
+                    i++;
+                    column++;
+                }
                 case '\n' -> {
                     lineNum++;
-                    column = 0;
+                    column = 1;
+                    i += 2;
                 }
                 case '\r' -> {
                     lineNum++;
-                    column = 0;
-                    i++; // to account for the assumption that '\r' will always be followed by '\n'
+                    column = 1;
+                    i += 4; // to account for the assumption that '\r' will always be followed by '\n'
                 }
             }
          }
