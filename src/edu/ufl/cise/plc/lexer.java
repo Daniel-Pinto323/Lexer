@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class lexer implements ILexer{
-ArrayList<token> tokens = new ArrayList<token>(20);
-String currTok  = "";
+    ArrayList<token> tokens = new ArrayList<token>(20);
+    String currTok  = "";
 
 
     public lexer(String input) {
@@ -43,7 +43,7 @@ String currTok  = "";
                             case 'n' -> {
                                 currTok += "n";
                                 lineNum++;
-                                column = 1;
+                                column = 0;
                             }
                             case 'f' -> {
                                 currTok += "f";
@@ -53,7 +53,7 @@ String currTok  = "";
                                 // assuming all instances of '\r' are followed by '\n'
                                 currTok += "r\\n";
                                 lineNum++;
-                                column = 1;
+                                column = 0;
                             }
                             case '\"' -> {
                                 currTok += "\"";
@@ -93,16 +93,15 @@ String currTok  = "";
                 currTok = "";
             }
 
-            // HANDLING INVALID CHARACTER '@'
-            if (program.charAt(i) == '@') {
-                currTok += '@';
-                tokens.add(new token(currTok, lineNum, column, IToken.Kind.ERROR));
-                // throw new LexicalException("exception"); // not sure how to throw exceptions properly
-                currTok = "";
-            }
-
-            // OTHER CHARACTERS
+            // @ SYMBOL, OPERATORS, AND OTHER CHARACTERS
             switch (program.charAt(i)) {
+                case '@' -> {
+                    currTok += '@';
+                    tokens.add(new token(currTok, lineNum, column, IToken.Kind.ERROR));
+                    currTok = "";
+                    i++;
+                    column++;
+                }
                 case '*' -> {
                     tokens.add(new token("*", lineNum, column, IToken.Kind.TIMES));
                     i++;
@@ -181,9 +180,9 @@ String currTok  = "";
                         column += 2;
                     }
                     else if(program.charAt(i + 1) == '>')    {
-                            tokens.add(new token(">>", lineNum, column, IToken.Kind.RANGLE));
-                            i += 2;
-                            column += 2;
+                        tokens.add(new token(">>", lineNum, column, IToken.Kind.RANGLE));
+                        i += 2;
+                        column += 2;
                     }
                     else {
                         tokens.add(new token(">", lineNum, column, IToken.Kind.GT));
@@ -255,14 +254,14 @@ String currTok  = "";
                             case 'n' -> {
                                 currTok += "n";
                                 lineNum++;
-                                column = 1;
+                                column = 0;
                                 i++;
                             }
                             case 'r' -> {
                                 // assuming all instances of '\r' are followed by '\n'
                                 currTok += "r\\n";
                                 lineNum++;
-                                column = 1;
+                                column = 0;
                                 i++;
                             }
                             default -> {
@@ -338,8 +337,6 @@ String currTok  = "";
                         tokens.add(new token(currTok, lineNum, startPos, IToken.Kind.IDENT));
                     }
                 }
-                // tokens.add(new token(currTok, lineNum, startPos, IToken.Kind.IDENT));
-
                 currTok = "";
             }
 
@@ -347,12 +344,12 @@ String currTok  = "";
             switch(program.charAt(i)) {
                 case '\n' -> {
                     lineNum++;
-                    column = 1;
+                    column = 0;
                     i++;
                 }
                 case '\r' -> {
                     lineNum++;
-                    column = 1;
+                    column = 0;
                     i += 2; // to account for the assumption that '\r' will always be followed by '\n'
                 }
                 case ' ' -> {
@@ -360,8 +357,8 @@ String currTok  = "";
                     column++;
                 }
             }
-         }
-       tokens.add(new token(null, lineNum, column, IToken.Kind.EOF));
+        }
+        tokens.add(new token(null, lineNum, column, IToken.Kind.EOF));
     }
 
 
@@ -378,7 +375,7 @@ String currTok  = "";
 
 
     public IToken peek(){
-    //same as next just don't iterate to the next position in the container
+        //same as next just don't iterate to the next position in the container
         return tokens.get(0);
-   }
+    }
 }
