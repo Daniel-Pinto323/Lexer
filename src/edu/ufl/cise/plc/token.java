@@ -3,7 +3,7 @@ package edu.ufl.cise.plc;
 public class token implements IToken{
 
     String tokenString;
-    int row;
+    int line;
     int col;
     Kind kind;
 
@@ -12,9 +12,9 @@ public class token implements IToken{
     }
 
 
-    public token(String x, int r, int c, Kind k){
+    public token(String x, int l, int c, Kind k){
         tokenString = x;
-        row = r;
+        line = l;
         col = c;
         kind = k;
     }
@@ -28,7 +28,7 @@ public class token implements IToken{
     }
 
     public SourceLocation getSourceLocation(){
-        return new SourceLocation(row, col);
+        return new SourceLocation(line, col);
     }
 
 
