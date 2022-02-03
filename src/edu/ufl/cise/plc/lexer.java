@@ -255,6 +255,7 @@ class lexer implements ILexer{
                             i++;
 
                             continueFlag = false;
+
                         }
                         case '\r' -> {
                             lineNum++;
@@ -263,6 +264,7 @@ class lexer implements ILexer{
 
                             continueFlag = false;
                         }
+
                     }
                     if (i == program.length() - 1) {
                         continueFlag = false;
