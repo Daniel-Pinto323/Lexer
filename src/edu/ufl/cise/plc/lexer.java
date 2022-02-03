@@ -190,6 +190,11 @@ class lexer implements ILexer{
                         column++;
                     }
                 }
+                case ';' -> {
+                    tokens.add(new token(";", lineNum, column, IToken.Kind.SEMI));
+                    i++;
+                    column++;
+                }
                 case ',' -> {
                     tokens.add(new token(",", lineNum, column, IToken.Kind.COMMA));
                     i++;
