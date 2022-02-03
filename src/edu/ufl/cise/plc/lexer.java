@@ -184,32 +184,27 @@ String currTok  = "";
 
             }
 
-
-
-
-
             // HANDLING WHITE-SPACE
             switch(program.charAt(i)) {
                 case '\n' -> {
                     lineNum++;
-                    column = 0;
+                    column = 1;
+                    i+=2;
                 }
                 case '\r' -> {
                     lineNum++;
-                    column = 0;
-                    i++; // to account for the assumption that '\r' will always be followed by '\n'
+                    column = 1;
+                    i+=4; // to account for the assumption that '\r' will always be followed by '\n'
+                }
+                case ' ' ->{
+                    i++;
+                    column++;
                 }
 
             }
          }
        tokens.add(new token(null, lineNum, column, IToken.Kind.EOF));
     }
-
-
-
-
-
-
 
 
     public IToken next() throws LexicalException {
