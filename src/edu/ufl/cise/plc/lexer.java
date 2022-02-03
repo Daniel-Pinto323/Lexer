@@ -260,6 +260,7 @@ class lexer implements ILexer{
                             i++;
 
                             continueFlag = false;
+
                         }
                         case '\r' -> {
                             lineNum++;
@@ -268,6 +269,7 @@ class lexer implements ILexer{
 
                             continueFlag = false;
                         }
+
                     }
                     if (i == program.length() - 1) {
                         continueFlag = false;
@@ -283,7 +285,14 @@ class lexer implements ILexer{
                     i++;
                     column++;
                 }
-                tokens.add(new token(currTok, lineNum, startPos, IToken.Kind.INT_LIT));
+
+                try {
+                    Integer.valueOf(currTok);
+                    tokens.add(new token(currTok, lineNum, startPos, IToken.Kind.INT_LIT));
+                }
+                catch(Exception e){
+                    tokens.add(new token(currTok, lineNum, startPos, IToken.Kind.ERROR));
+                }
                 currTok = "";
             }
 
