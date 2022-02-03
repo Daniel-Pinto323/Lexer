@@ -12,12 +12,10 @@ String currTok  = "";
         sepTok(input);
     }
 
-    public void sepTok(String program) {
+    public void sepTok(String program) /*throws LexicalException*/ {
         int lineNum = 0;
         int column = 0;
-
         int i = 0;
-
 
         // this function will break the tokens up and store them in a container
         while (i < program.length()) {
@@ -28,11 +26,11 @@ String currTok  = "";
             // STRING LITs (begin with open quotes ' " ')
             if (program.charAt(i) == '\"') {
                 boolean danglingQuote = true;
-                i++;
-                column++;
 
                 // while still within double quotes
                 while (continueFlag) {
+                    i++;
+                    column++;
                     if (program.charAt(i) == '\\') {
                         // ESCAPE SEQUENCES
                         currTok += "\\";
@@ -79,8 +77,6 @@ String currTok  = "";
                         danglingQuote = !danglingQuote;
                         column++;
                     }
-                    // i++ to increment i within while loop
-                    i++;
 
                     // if while loop iterates to end of program without finding end quote -> add ERROR token + break
                     // potentially requires throwing the error rather than adding ERROR token
@@ -107,214 +103,173 @@ String currTok  = "";
                 currTok = "";
             }
 
-
-
-            //OTHER CHARACTERS
-            switch (program.charAt(i)) {
+            // OTHER CHARACTERS
+            switch (program.charAt(i)){
                 case '*' -> {
-                    currTok += "*";
-                    tokens.add(new token(currTok, lineNum, column, IToken.Kind.TIMES));
+                    tokens.add(new token("*", lineNum, column, IToken.Kind.TIMES));
+
                     i++;
                     column++;
-                    currTok = "";
-
-
                 }
                 case '+' -> {
-                    currTok += '+';
-                    tokens.add(new token(currTok, lineNum, column, IToken.Kind.PLUS));
+
+                    tokens.add(new token("+", lineNum, column, IToken.Kind.PLUS));
+
                     i++;
                     column++;
-                    currTok = "";
-
                 }
-
                 case '-' -> {
 
-                    if (program.charAt(i + 1) == '>') {
-                        currTok += "->";
-                        tokens.add(new token(currTok, lineNum, column, IToken.Kind.RARROW));
+                    if(program.charAt(i + 1) == '>') {
+                        tokens.add(new token("->", lineNum, column, IToken.Kind.RARROW));
                         i += 2;
                         column += 2;
-                    } else {
-
-                        currTok += '-';
-                        tokens.add(new token(currTok, lineNum, column, IToken.Kind.MINUS));
+                    }
+                    else {
+                        tokens.add(new token("-", lineNum, column, IToken.Kind.MINUS));
                         i++;
                         column++;
                     }
-
-                    currTok = "";
                 }
                 case '/' -> {
-                    currTok += '/';
-                    column++;
-                    tokens.add(new token(currTok, lineNum, column, IToken.Kind.DIV));
-                    currTok = "";
+                    tokens.add(new token("/", lineNum, column, IToken.Kind.DIV));
+                    i++;
 
+                    column++;
                 }
                 case '%' -> {
-                    currTok += '%';
-                    column++;
-                    tokens.add(new token(currTok, lineNum, column, IToken.Kind.MOD));
-                    currTok = "";
 
+                    tokens.add(new token("%", lineNum, column, IToken.Kind.MOD));
+                    i++;
+
+                    column++;
                 }
                 case '|' -> {
-                    currTok += '|';
+
+                    tokens.add(new token("|", lineNum, column, IToken.Kind.OR));
+                    i++;
+
                     column++;
-                    tokens.add(new token(currTok, lineNum, column, IToken.Kind.OR));
-                    currTok = "";
-
                 }
-
                 case '!' -> {
 
-                    if (program.charAt(i + 1) == '=') {
-                        currTok += "!=";
-                        tokens.add(new token(currTok, lineNum, column, IToken.Kind.NOT_EQUALS));
+                    if(program.charAt(i + 1) == '='){
+                        tokens.add(new token("!=", lineNum, column, IToken.Kind.NOT_EQUALS));
                         i += 2;
                         column += 2;
+                    }
+                    else {
+                        tokens.add(new token("!", lineNum, column, IToken.Kind.BANG));
 
-                    } else {
-                        currTok += '!';
-                        tokens.add(new token(currTok, lineNum, column, IToken.Kind.BANG));
                         i++;
                         column++;
                     }
-                    currTok = "";
                 }
-
                 case '<' -> {
 
-                    if (program.charAt(i + 1) == '=') {
-                        currTok += "<=";
-                        tokens.add(new token(currTok, lineNum, column, IToken.Kind.LE));
+                    if(program.charAt(i + 1) == '=') {
+                        tokens.add(new token("<=", lineNum, column, IToken.Kind.LE));
                         i += 2;
                         column += 2;
                     }
-
-                    if (program.charAt(i + 1) == '<') {
-                        currTok += "<<";
-                        tokens.add(new token(currTok, lineNum, column, IToken.Kind.LANGLE));
+                    else if(program.charAt(i + 1) == '<')    {
+                        tokens.add(new token("<<", lineNum, column, IToken.Kind.LANGLE));
                         i += 2;
                         column += 2;
                     }
-
-                    if (program.charAt(i + 1) == '-') {
-                        currTok += "<-";
-                        tokens.add(new token(currTok, lineNum, column, IToken.Kind.LARROW));
+                    else if(program.charAt(i + 1) == '-'){
+                        tokens.add(new token("<-", lineNum, column, IToken.Kind.LARROW));
                         i += 2;
                         column += 2;
+                    }
+                    else {
+                        tokens.add(new token("<", lineNum, column, IToken.Kind.LT));
 
-                    } else {
-                        currTok += '<';
-                        tokens.add(new token(currTok, lineNum, column, IToken.Kind.LT));
                         i++;
                         column++;
                     }
-                    currTok = "";
                 }
-
                 case '>' -> {
 
-                    if (program.charAt(i + 1) == '=') {
-                        currTok += ">=";
-                        tokens.add(new token(currTok, lineNum, column, IToken.Kind.GE));
+                    if(program.charAt(i + 1) == '=') {
+                        tokens.add(new token(">=", lineNum, column, IToken.Kind.GE));
                         i += 2;
                         column += 2;
-
-
-                        if (program.charAt(i + 1) == '>') {
-                            currTok += ">>";
-                            tokens.add(new token(currTok, lineNum, column, IToken.Kind.RANGLE));
+                    }
+                    else if(program.charAt(i + 1) == '>')    {
+                            tokens.add(new token(">>", lineNum, column, IToken.Kind.RANGLE));
                             i += 2;
                             column += 2;
-                        }
+                    }
+                    else {
+                        tokens.add(new token(">", lineNum, column, IToken.Kind.GT));
 
-
-                    } else {
-                        currTok += ">";
-                        tokens.add(new token(currTok, lineNum, column, IToken.Kind.GT));
                         i++;
                         column++;
                     }
-                    currTok = "";
                 }
-
-
                 case ',' -> {
-                    currTok += '&';
-                    tokens.add(new token(currTok, lineNum, column, IToken.Kind.COMMA));
+
+                    tokens.add(new token(",", lineNum, column, IToken.Kind.COMMA));
+
                     i++;
                     column++;
-                    currTok = "";
-
                 }
-
                 case '^' -> {
-                    currTok += '^';
-                    tokens.add(new token(currTok, lineNum, column, IToken.Kind.RETURN));
+
+                    tokens.add(new token("^", lineNum, column, IToken.Kind.RETURN));
+
                     i++;
                     column++;
-                    currTok = "";
-
                 }
-
                 case '=' -> {
 
-                    if (program.charAt(i + 1) == '=') {
-                        currTok += "==";
-
-                        tokens.add(new token(currTok, lineNum, column, IToken.Kind.EQUALS));
+                    if(program.charAt(i + 1) == '='){
+                        tokens.add(new token("==",lineNum, column, IToken.Kind.EQUALS));
                         i += 2;
                         column += 2;
-                    } else {
-                        currTok += '=';
-                        tokens.add(new token(currTok, lineNum, column, IToken.Kind.ASSIGN));
+                    }
+                    else {
+                        tokens.add(new token("=", lineNum, column, IToken.Kind.ASSIGN));
+
                         i++;
                         column++;
                     }
-                    currTok = "";
                 }
 
-                case '(' -> {
-                    currTok += "(";
-                    tokens.add(new token(currTok, lineNum, column, IToken.Kind.LPAREN));
+                case '(' ->{
+                    tokens.add(new token("(", lineNum, column, IToken.Kind.LPAREN));
+
                     i++;
                     column++;
-                    currTok = "";
                 }
 
-                case ')' -> {
-                    currTok += ")";
-                    tokens.add(new token(currTok, lineNum, column, IToken.Kind.RPAREN));
+                case ')' ->{
+                    tokens.add(new token(")", lineNum, column, IToken.Kind.RPAREN));
+
                     i++;
                     column++;
-                    currTok = "";
                 }
 
-                case '[' -> {
-                    currTok += "[";
-                    tokens.add(new token(currTok, lineNum, column, IToken.Kind.LSQUARE));
+                case '[' ->{
+                    tokens.add(new token("[", lineNum, column, IToken.Kind.LSQUARE));
+
                     i++;
                     column++;
-                    currTok = "";
                 }
 
-                case ']' -> {
-                    currTok += "]";
-                    tokens.add(new token(currTok, lineNum, column, IToken.Kind.RSQUARE));
+                case ']' ->{
+                    tokens.add(new token("]", lineNum, column, IToken.Kind.RSQUARE));
                     i++;
                     column++;
-                    currTok = "";
                 }
-
                 case '&' -> {
                     tokens.add(new token("&", lineNum, column, IToken.Kind.AND));
+
                     i++;
                     column++;
                 }
+
             }
 
 
@@ -324,7 +279,7 @@ String currTok  = "";
                 startLine = lineNum;
                 startCol = column;
                 continueFlag = true;
-                while (continueFlag && i < program.length() - 1) {// *************************************************
+                while (continueFlag) {
                     i++;
                     if (program.charAt(i) == '\\') {
                         currTok += "\\";
@@ -348,9 +303,8 @@ String currTok  = "";
                         continueFlag = false;
                     }
                 }
+                currTok = "";
             }
-
-
 
             //INT-LIT
             if (Character.isDigit(program.charAt(i))) {
@@ -362,18 +316,21 @@ String currTok  = "";
                 }
                 tokens.add(new token(currTok, lineNum, startPos, IToken.Kind.INT_LIT));
                 currTok = "";
-
             }
 
 
             //IDENTIFIERS AND RESERVED WORDS
             if (Character.isLetter(program.charAt(i))) {
+
+                //if the character is a letter
+
                 int startPos = column;
                 while (Character.isLetter(program.charAt(i)) || Character.isDigit(program.charAt(i))) {
                     currTok += program.charAt(i);
                     i++;
                     column++;
                 }
+
                 switch(currTok){
 
 
@@ -423,31 +380,28 @@ String currTok  = "";
                         tokens.add(new token(currTok, lineNum, startPos, IToken.Kind.IDENT));
                     }
                 }
+
+                tokens.add(new token(currTok, lineNum, startPos, IToken.Kind.IDENT));
+
                 currTok = "";
             }
 
             // HANDLING WHITE-SPACE
             switch(program.charAt(i)) {
-
                 case '\n' -> {
                     lineNum++;
                     column = 1;
-
                     i += 2;
-
                 }
                 case '\r' -> {
                     lineNum++;
                     column = 1;
-
                     i += 4; // to account for the assumption that '\r' will always be followed by '\n'
-
                 }
-                case ' ' ->{
+                case ' ' -> {
                     i++;
                     column++;
                 }
-
             }
          }
        tokens.add(new token(null, lineNum, column, IToken.Kind.EOF));
@@ -459,9 +413,7 @@ String currTok  = "";
         token retTok = tokens.get(0);
         tokens.remove(0);
         if (retTok.kind == IToken.Kind.ERROR) {
-
-
-            throw new LexicalException("error");
+            throw new LexicalException("ERROR: ERROR token encountered at line: " + retTok.line + " column: " + retTok.col);
         }
 
         return retTok;
