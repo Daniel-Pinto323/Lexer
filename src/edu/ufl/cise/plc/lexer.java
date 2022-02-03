@@ -75,17 +75,16 @@ String currTok  = "";
                         }
                     } else if (program.charAt(i) == '\"') {
                         danglingQuote = !danglingQuote;
+                        tokens.add(new token(currTok, startLine, startCol, IToken.Kind.STRING_LIT));
+                        i++;
                         column++;
+                        continueFlag = false;
                     }
 
                     // if while loop iterates to end of program without finding end quote -> add ERROR token + break
                     // potentially requires throwing the error rather than adding ERROR token
-                    if (i == program.length() - 1) {
-                        if (danglingQuote) {
-                            tokens.add(new token(currTok, startLine, startCol, IToken.Kind.ERROR));
-                        } else {
-                            tokens.add(new token(currTok, startLine, startCol, IToken.Kind.STRING_LIT));
-                        }
+                    if (i == program.length() - 1 && danglingQuote) {
+                        tokens.add(new token(currTok, startLine, startCol, IToken.Kind.ERROR));
                         continueFlag = false;
                     }
 
@@ -104,7 +103,7 @@ String currTok  = "";
             }
 
             // OTHER CHARACTERS
-            switch (program.charAt(i)){
+            switch (program.charAt(i)) {
                 case '*' -> {
                     tokens.add(new token("*", lineNum, column, IToken.Kind.TIMES));
                     i++;
