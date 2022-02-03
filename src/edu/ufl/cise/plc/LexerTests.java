@@ -160,13 +160,13 @@ public class LexerTests {
 	@Test
 	public void testIdenInt() throws LexicalException {
 		String input = """
-				a123 456b
+				float 456b
 				""";
 		show(input);
 		ILexer lexer = getLexer(input);
-		checkIdent(lexer.next(), "a123", 0,0);
-		checkInt(lexer.next(), 456, 0,5);
-		checkIdent(lexer.next(), "b",0,8);
+		checkToken(lexer.next(), Kind.TYPE, 0, 0);
+		checkInt(lexer.next(), 456, 0,6);
+		checkIdent(lexer.next(), "b",0,9);
 		checkEOF(lexer.next());
 		}
 	
