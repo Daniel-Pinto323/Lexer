@@ -244,36 +244,30 @@ class lexer implements ILexer{
 
             // HANDLING COMMENTS STARTING WITH CHARACTER '#'
             if (program.charAt(i) == '#') {
-                startLine = lineNum;
-                startCol = column;
                 continueFlag = true;
                 while (continueFlag) {
-                    if (program.charAt(i) == '\\') {
-                        currTok += "\\";
-                        switch (program.charAt(i + 1)) {
-                            case 'n' -> {
-                                currTok += "n";
-                                lineNum++;
-                                column = 0;
-                                i++;
-                            }
-                            case 'r' -> {
-                                // assuming all instances of '\r' are followed by '\n'
-                                currTok += "r\\n";
-                                lineNum++;
-                                column = 0;
-                                i++;
-                            }
-                            default -> {
-                                tokens.add(new token(currTok, startLine, startCol, IToken.Kind.ERROR));
-                                // throw PLCException(row, column, "ERROR: invalid escape sequence");
-                            }
+                    i++;
+                    column++;
+                    switch(program.charAt(i)) {
+                        case '\n' -> {
+                            lineNum++;
+                            column = 0;
+                            i++;
+
+                            continueFlag = false;
                         }
+                        case '\r' -> {
+                            lineNum++;
+                            column = 0;
+                            i += 2; // accounting for the assumption that '\r' is always followed by '\n'
+
+                            continueFlag = false;
+                        }
+                    }
+                    if (i == program.length() - 1) {
                         continueFlag = false;
                     }
-                    i++;
                 }
-                currTok = "";
             }
 
             //INT-LIT
