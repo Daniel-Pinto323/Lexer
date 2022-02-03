@@ -12,12 +12,10 @@ String currTok  = "";
         sepTok(input);
     }
 
-    public void sepTok(String program) {
+    public void sepTok(String program) /*throws LexicalException*/ {
         int lineNum = 0;
         int column = 0;
-
         int i = 0;
-
 
         // this function will break the tokens up and store them in a container
         while (i < program.length()) {
@@ -28,11 +26,11 @@ String currTok  = "";
             // STRING LITs (begin with open quotes ' " ')
             if (program.charAt(i) == '\"') {
                 boolean danglingQuote = true;
-                i++;
-                column++;
 
                 // while still within double quotes
                 while (continueFlag) {
+                    i++;
+                    column++;
                     if (program.charAt(i) == '\\') {
                         // ESCAPE SEQUENCES
                         currTok += "\\";
@@ -79,8 +77,6 @@ String currTok  = "";
                         danglingQuote = !danglingQuote;
                         column++;
                     }
-                    // i++ to increment i within while loop
-                    i++;
 
                     // if while loop iterates to end of program without finding end quote -> add ERROR token + break
                     // potentially requires throwing the error rather than adding ERROR token
@@ -137,22 +133,7 @@ String currTok  = "";
                         continueFlag = false;
                     }
                 }
-            }
-
-            //ASSIGN AND EQUALS
-            if (program.charAt(i) == '=') {
-
-                if (program.charAt(i + 1) == '=') {
-                    currTok = "==";
-                    tokens.add(new token("==", lineNum, column, IToken.Kind.EQUALS));
-                    i++;//skips the following character
-                    column++;//accounts for the column that was skipped
-                } else {
-                    currTok = "=";
-                    tokens.add(new token("=", lineNum, column, IToken.Kind.ASSIGN));
-                }
-                i++;
-                column++;
+                currTok = "";
             }
 
             //INT-LIT
@@ -165,23 +146,60 @@ String currTok  = "";
                 }
                 tokens.add(new token(currTok, lineNum, startPos, IToken.Kind.INT_LIT));
                 currTok = "";
-
             }
 
 
             //IDENTIFIERS AND RESERVED WORDS
             if (Character.isLetter(program.charAt(i))) {
-                                //if the character is a letter
+                //if the character is a letter
                 int startPos = column;
                 while (Character.isLetter(program.charAt(i)) || Character.isDigit(program.charAt(i))) {
                     currTok += program.charAt(i);
                     i++;
                     column++;
                 }
-
                 tokens.add(new token(currTok, lineNum, startPos, IToken.Kind.IDENT));
                 currTok = "";
+            }
 
+            // OPERATORS
+            switch (program.charAt(i)) {
+                case '+' ->  {
+                    tokens.add(new token("+", lineNum, column, IToken.Kind.PLUS));
+                    i++;
+                    column++;
+                }
+                case '-' -> {
+                    tokens.add(new token("-", lineNum, column, IToken.Kind.MINUS));
+                    i++;
+                    column++;
+                }
+                case '*' -> {
+                    tokens.add(new token("*", lineNum, column, IToken.Kind.TIMES));
+                    i++;
+                    column++;
+                }
+                case '/' -> {
+                    tokens.add(new token("/", lineNum, column, IToken.Kind.DIV));
+                    i++;
+                    column++;
+                }
+                case '%' -> {
+                    tokens.add(new token("%", lineNum, column, IToken.Kind.MOD));
+                    i++;
+                    column++;
+                }
+                case '=' -> {
+                    if (program.charAt(i + 1) == '=') {
+                        tokens.add(new token("==", lineNum, column, IToken.Kind.EQUALS));
+                        i++;//skips the following character
+                        column++;//accounts for the column that was skipped
+                    } else {
+                        tokens.add(new token("=", lineNum, column, IToken.Kind.ASSIGN));
+                    }
+                    i++;
+                    column++;
+                }
             }
 
             // HANDLING WHITE-SPACE
