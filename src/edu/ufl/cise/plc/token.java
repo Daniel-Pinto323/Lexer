@@ -49,6 +49,6 @@ public class token implements IToken{
     }
 
     public String getStringValue(){
-        return "";
+        return tokenString;
     }
 }

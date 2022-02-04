@@ -190,6 +190,11 @@ class lexer implements ILexer{
                         column++;
                     }
                 }
+                case ';' -> {
+                    tokens.add(new token(";", lineNum, column, IToken.Kind.SEMI));
+                    i++;
+                    column++;
+                }
                 case ',' -> {
                     tokens.add(new token(",", lineNum, column, IToken.Kind.COMMA));
                     i++;
@@ -214,13 +219,11 @@ class lexer implements ILexer{
                 }
                 case '(' -> {
                     tokens.add(new token("(", lineNum, column, IToken.Kind.LPAREN));
-
                     i++;
                     column++;
                 }
                 case ')' -> {
                     tokens.add(new token(")", lineNum, column, IToken.Kind.RPAREN));
-
                     i++;
                     column++;
                 }
@@ -240,6 +243,141 @@ class lexer implements ILexer{
                     column++;
                 }
 
+            }
+
+
+            //INT-LIT
+
+            if (Character.isDigit(program.charAt(i))) {
+                boolean safeFloat = false;
+                boolean Flo = false;
+                int startPos = column;
+                boolean litZero = false;
+
+                if (program.charAt(i) == '0' && program.charAt(i + 1) != '.') {
+                    litZero = true;
+                }
+
+
+                if (!litZero) {
+                    while (Character.isDigit(program.charAt(i)) || program.charAt(i) == '.') {
+
+                        currTok += program.charAt(i);
+                        i++;
+                        column++;
+
+                        if (program.charAt(i) == '.') {
+                            Flo = true;
+                            if (Character.isDigit(program.charAt(i + 1))) {
+                                safeFloat = true;
+                            } else {
+                                tokens.add(new token(".", lineNum, startPos, IToken.Kind.ERROR));
+                            }
+                        }
+                    }
+
+                    // try-catch block to prevent integers from exceeding maximum Java int size
+
+                    if (litZero) {
+                        tokens.add(new token("0", lineNum, startPos, IToken.Kind.INT_LIT));
+                        i++;
+                        column++;
+
+                    }
+
+                    if (!Flo && !litZero) {
+                        try {
+                            Integer.valueOf(currTok);
+                            tokens.add(new token(currTok, lineNum, startPos, IToken.Kind.INT_LIT));
+                        } catch (Exception e) {
+                            tokens.add(new token(currTok, lineNum, startPos, IToken.Kind.ERROR));
+                        }
+                    }
+
+                    if (Flo && safeFloat) {
+
+
+                        try {
+                            Float.valueOf(currTok);
+                            tokens.add(new token(currTok, lineNum, startPos, IToken.Kind.FLOAT_LIT));
+                        } catch (Exception e) {
+                            tokens.add(new token(currTok, lineNum, startPos, IToken.Kind.ERROR));
+                        }
+
+                    }
+                    currTok = "";
+                }
+            }
+
+
+            //IDENTIFIERS AND RESERVED WORDS
+            if (Character.isLetter(program.charAt(i))) {
+                //if the character is a letter
+                startCol = column;
+
+                while (Character.isLetter(program.charAt(i)) || Character.isDigit(program.charAt(i)) || program.charAt(i) == '_') {
+                    currTok += program.charAt(i);
+                    i++;
+                    column++;
+                }
+                switch(currTok){
+                    case "true", "false" -> {
+                        tokens.add(new token(currTok, lineNum, startCol, IToken.Kind.BOOLEAN_LIT));
+                    }
+                    case "BLACK", "BLUE", "CYAN", "DARK_GRAY", "GRAY", "GREEN", "LIGHT_GRAY", "MAGENTA", "ORANGE", "PINK",
+                            "RED", "WHITE", "YELLOW" -> {
+                        tokens.add(new token(currTok, lineNum, startCol, IToken.Kind.COLOR_CONST));
+                    }
+                    case "if" -> {
+                        tokens.add(new token(currTok, lineNum, startCol, IToken.Kind.KW_IF));
+                    }
+                    case "fi" -> {
+                        tokens.add(new token(currTok, lineNum, startCol, IToken.Kind.KW_FI));
+                    }
+                    case "else" -> {
+                        tokens.add(new token(currTok, lineNum, startCol, IToken.Kind.KW_ELSE));
+                    }
+                    case "write" -> {
+                        tokens.add(new token(currTok, lineNum, startCol, IToken.Kind.KW_WRITE));
+                    }
+                    case "console" -> {
+                        tokens.add(new token(currTok, lineNum, startCol, IToken.Kind.KW_CONSOLE));
+                    }
+                    case "void" -> {
+                        tokens.add(new token(currTok, lineNum, startCol, IToken.Kind.KW_VOID));
+                    }
+                    case "int", "float", "string", "boolean", "color", "image" -> {
+                        tokens.add(new token(currTok, lineNum, startCol, IToken.Kind.TYPE));
+                    }
+                    case "getRed", "getGreen", "getBlue" -> {
+                        tokens.add(new token(currTok, lineNum, startCol, IToken.Kind.COLOR_OP));
+                    }
+                    case "getWidth", "getHeight" -> {
+                        tokens.add(new token(currTok, lineNum, startCol, IToken.Kind.IMAGE_OP));
+                    }
+                    default -> {
+                        tokens.add(new token(currTok, lineNum, startCol, IToken.Kind.IDENT));
+                    }
+                }
+                currTok = "";
+            }
+
+            // HANDLING WHITE-SPACE
+            switch(program.charAt(i)) {
+                case '\n' -> {
+                    lineNum++;
+                    column = 0;
+                    i++;
+                }
+                case '\r' -> {
+                    lineNum++;
+                    column = 0;
+                    i += 2; // to account for the assumption that '\r' will always be followed by '\n'
+                }
+                case ' ' -> {
+                    i++;
+                    column++;
+                }
             }
 
             // HANDLING COMMENTS STARTING WITH CHARACTER '#'
@@ -268,141 +406,8 @@ class lexer implements ILexer{
                     }
                     if (i == program.length() - 1) {
                         continueFlag = false;
-                    }
-                }
-            }
-
-            if(program.charAt(i) == '.'){
-                tokens.add(new token(".", lineNum, column, IToken.Kind.ERROR));
-                i++;
-                column++;
-            }
-
-            //INT-LIT && FLOAT LIT
-            if (Character.isDigit(program.charAt(i))) {
-                boolean safeFloat = false;
-                boolean Flo = false;
-                int startPos = column;
-                boolean litZero = false;
-
-                if(program.charAt(i) == '0' && program.charAt(i + 1)!= '.'){
-                    litZero = true;
-                }
-
-                if(!litZero) {
-                    while (Character.isDigit(program.charAt(i)) || program.charAt(i) == '.') {
-
-                        currTok += program.charAt(i);
                         i++;
-                        column++;
-
-                        if (program.charAt(i) == '.') {
-                            Flo = true;
-                            if (Character.isDigit(program.charAt(i + 1))) {
-                                safeFloat = true;
-                            } else{
-                                tokens.add(new token(".", lineNum, startPos, IToken.Kind.ERROR));
-                            }
-                        }
                     }
-                }
-
-                if(litZero){
-                    tokens.add(new token("0", lineNum, startPos, IToken.Kind.INT_LIT));
-                    i++;
-                    column++;
-
-                }
-
-               if(!Flo && !litZero) {
-                   try {
-                       Integer.valueOf(currTok);
-                       tokens.add(new token(currTok, lineNum, startPos, IToken.Kind.INT_LIT));
-                   } catch (Exception e) {
-                       tokens.add(new token(currTok, lineNum, startPos, IToken.Kind.ERROR));
-                   }
-               }
-
-               if(Flo && safeFloat){
-
-
-                   try{
-                       Float.valueOf(currTok);
-                       tokens.add(new token(currTok, lineNum, startPos, IToken.Kind.FLOAT_LIT));
-                   }catch (Exception e) {
-                       tokens.add(new token(currTok, lineNum, startPos, IToken.Kind.ERROR));
-                   }
-
-               }
-                currTok = "";
-               }
-
-            //IDENTIFIERS AND RESERVED WORDS
-            if (Character.isLetter(program.charAt(i))) {
-                //if the character is a letter
-                int startPos = column;
-                while (Character.isLetter(program.charAt(i)) || Character.isDigit(program.charAt(i)) || program.charAt(i) == '_') {
-                    currTok += program.charAt(i);
-                    i++;
-                    column++;
-                }
-                switch(currTok){
-                    case "true", "false" -> {
-                        tokens.add(new token(currTok, lineNum, startPos, IToken.Kind.BOOLEAN_LIT));
-                    }
-                    case "BLACK", "BLUE", "CYAN", "DARK_GRAY", "GRAY", "GREEN", "LIGHT_GRAY", "MAGENTA", "ORANGE", "PINK",
-                            "RED", "WHITE" -> {
-                        tokens.add(new token(currTok, lineNum, startPos, IToken.Kind.COLOR_CONST));
-                    }
-                    case "if" -> {
-                        tokens.add(new token(currTok, lineNum, startPos, IToken.Kind.KW_IF));
-                    }
-                    case "fi" -> {
-                        tokens.add(new token(currTok, lineNum, startPos, IToken.Kind.KW_FI));
-                    }
-                    case "else" -> {
-                        tokens.add(new token(currTok, lineNum, startPos, IToken.Kind.KW_ELSE));
-                    }
-                    case "write" -> {
-                        tokens.add(new token(currTok, lineNum, startPos, IToken.Kind.KW_WRITE));
-                    }
-                    case "console" -> {
-                        tokens.add(new token(currTok, lineNum, startPos, IToken.Kind.KW_CONSOLE));
-                    }
-                    case "void" -> {
-                        tokens.add(new token(currTok, lineNum, startPos, IToken.Kind.KW_VOID));
-                    }
-                    case "int", "float", "string", "boolean", "color", "image" -> {
-                        tokens.add(new token(currTok, lineNum, startPos, IToken.Kind.TYPE));
-                    }
-                    case "getRed", "getGreen", "getBlue" -> {
-                        tokens.add(new token(currTok, lineNum, startPos, IToken.Kind.COLOR_OP));
-                    }
-                    case "getWidth", "getHeight" -> {
-                        tokens.add(new token(currTok, lineNum, startPos, IToken.Kind.IMAGE_OP));
-                    }
-                    default -> {
-                        tokens.add(new token(currTok, lineNum, startPos, IToken.Kind.IDENT));
-                    }
-                }
-                currTok = "";
-            }
-
-            // HANDLING WHITE-SPACE
-            switch(program.charAt(i)) {
-                case '\n' -> {
-                    lineNum++;
-                    column = 0;
-                    i++;
-                }
-                case '\r' -> {
-                    lineNum++;
-                    column = 0;
-                    i += 2; // to account for the assumption that '\r' will always be followed by '\n'
-                }
-                case ' ' -> {
-                    i++;
-                    column++;
                 }
             }
         }
