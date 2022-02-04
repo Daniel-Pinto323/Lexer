@@ -40,8 +40,7 @@ public class token implements IToken{
 
 
     public float getFloatValue(){
-        Integer test = Integer.valueOf(tokenString);
-        return test;
+        return Float.valueOf(tokenString);
     }
 
 

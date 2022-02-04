@@ -272,31 +272,76 @@ class lexer implements ILexer{
                 }
             }
 
-            //INT-LIT
-            if (Character.isDigit(program.charAt(i))) {
-                int startPos = column;
-                while (Character.isDigit(program.charAt(i))) {
-                    currTok += program.charAt(i);
-                    i++;
-                    column++;
-                }
-
-                try {
-                    Integer.valueOf(currTok);
-                    tokens.add(new token(currTok, lineNum, startPos, IToken.Kind.INT_LIT));
-                }
-                catch(Exception e){
-                    tokens.add(new token(currTok, lineNum, startPos, IToken.Kind.ERROR));
-                }
-                currTok = "";
+            if(program.charAt(i) == '.'){
+                tokens.add(new token(".", lineNum, column, IToken.Kind.ERROR));
+                i++;
+                column++;
             }
 
+            //INT-LIT && FLOAT LIT
+            if (Character.isDigit(program.charAt(i))) {
+                boolean safeFloat = false;
+                boolean Flo = false;
+                int startPos = column;
+                boolean litZero = false;
+
+                if(program.charAt(i) == '0' && program.charAt(i + 1)!= '.'){
+                    litZero = true;
+                }
+
+                if(!litZero) {
+                    while (Character.isDigit(program.charAt(i)) || program.charAt(i) == '.') {
+
+                        currTok += program.charAt(i);
+                        i++;
+                        column++;
+
+                        if (program.charAt(i) == '.') {
+                            Flo = true;
+                            if (Character.isDigit(program.charAt(i + 1))) {
+                                safeFloat = true;
+                            } else{
+                                tokens.add(new token(".", lineNum, startPos, IToken.Kind.ERROR));
+                            }
+                        }
+                    }
+                }
+
+                if(litZero){
+                    tokens.add(new token("0", lineNum, startPos, IToken.Kind.INT_LIT));
+                    i++;
+                    column++;
+
+                }
+
+               if(!Flo && !litZero) {
+                   try {
+                       Integer.valueOf(currTok);
+                       tokens.add(new token(currTok, lineNum, startPos, IToken.Kind.INT_LIT));
+                   } catch (Exception e) {
+                       tokens.add(new token(currTok, lineNum, startPos, IToken.Kind.ERROR));
+                   }
+               }
+
+               if(Flo && safeFloat){
+
+
+                   try{
+                       Float.valueOf(currTok);
+                       tokens.add(new token(currTok, lineNum, startPos, IToken.Kind.FLOAT_LIT));
+                   }catch (Exception e) {
+                       tokens.add(new token(currTok, lineNum, startPos, IToken.Kind.ERROR));
+                   }
+
+               }
+                currTok = "";
+               }
 
             //IDENTIFIERS AND RESERVED WORDS
             if (Character.isLetter(program.charAt(i))) {
                 //if the character is a letter
                 int startPos = column;
-                while (Character.isLetter(program.charAt(i)) || Character.isDigit(program.charAt(i))) {
+                while (Character.isLetter(program.charAt(i)) || Character.isDigit(program.charAt(i)) || program.charAt(i) == '_') {
                     currTok += program.charAt(i);
                     i++;
                     column++;
