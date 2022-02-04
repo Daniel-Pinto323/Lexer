@@ -245,36 +245,6 @@ class lexer implements ILexer{
 
             }
 
-            // HANDLING COMMENTS STARTING WITH CHARACTER '#'
-            if (program.charAt(i) == '#') {
-                continueFlag = true;
-                while (continueFlag) {
-                    i++;
-                    column++;
-                    switch(program.charAt(i)) {
-                        case '\n' -> {
-                            lineNum++;
-                            column = 0;
-                            i++;
-
-                            continueFlag = false;
-
-                        }
-                        case '\r' -> {
-                            lineNum++;
-                            column = 0;
-                            i += 2; // accounting for the assumption that '\r' is always followed by '\n'
-
-                            continueFlag = false;
-                        }
-
-                    }
-                    if (i == program.length() - 1) {
-                        continueFlag = false;
-                    }
-                }
-            }
-
             //INT-LIT
             if (Character.isDigit(program.charAt(i))) {
                 int startPos = column;
@@ -283,7 +253,7 @@ class lexer implements ILexer{
                     i++;
                     column++;
                 }
-
+                // try-catch block to prevent integers from exceeding maximum Java int size
                 try {
                     Integer.valueOf(currTok);
                     tokens.add(new token(currTok, lineNum, startPos, IToken.Kind.INT_LIT));
@@ -293,7 +263,6 @@ class lexer implements ILexer{
                 }
                 currTok = "";
             }
-
 
             //IDENTIFIERS AND RESERVED WORDS
             if (Character.isLetter(program.charAt(i))) {
@@ -361,6 +330,37 @@ class lexer implements ILexer{
                 case ' ' -> {
                     i++;
                     column++;
+                }
+            }
+
+            // HANDLING COMMENTS STARTING WITH CHARACTER '#'
+            if (program.charAt(i) == '#') {
+                continueFlag = true;
+                while (continueFlag) {
+                    i++;
+                    column++;
+                    switch(program.charAt(i)) {
+                        case '\n' -> {
+                            lineNum++;
+                            column = 0;
+                            i++;
+
+                            continueFlag = false;
+
+                        }
+                        case '\r' -> {
+                            lineNum++;
+                            column = 0;
+                            i += 2; // accounting for the assumption that '\r' is always followed by '\n'
+
+                            continueFlag = false;
+                        }
+
+                    }
+                    if (i == program.length() - 1) {
+                        continueFlag = false;
+                        i++;
+                    }
                 }
             }
         }
