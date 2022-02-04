@@ -87,7 +87,6 @@ class lexer implements ILexer{
                         tokens.add(new token(currTok, startLine, startCol, IToken.Kind.ERROR));
                         continueFlag = false;
                     }
-
                     currTok += program.charAt(i);
                 }
                 currTok = "";
@@ -190,6 +189,11 @@ class lexer implements ILexer{
                         column++;
                     }
                 }
+                case ';' -> {
+                    tokens.add(new token(";", lineNum, column, IToken.Kind.SEMI));
+                    i++;
+                    column++;
+                }
                 case ',' -> {
                     tokens.add(new token(",", lineNum, column, IToken.Kind.COMMA));
                     i++;
@@ -241,50 +245,62 @@ class lexer implements ILexer{
                 }
             }
 
-            // HANDLING COMMENTS STARTING WITH CHARACTER '#'
-            if (program.charAt(i) == '#') {
-                continueFlag = true;
-                while (continueFlag) {
-                    i++;
-                    column++;
-                    switch(program.charAt(i)) {
-                        case '\n' -> {
-                            lineNum++;
-                            column = 0;
-                            i++;
-
-                            continueFlag = false;
-
-                        }
-                        case '\r' -> {
-                            lineNum++;
-                            column = 0;
-                            i += 2; // accounting for the assumption that '\r' is always followed by '\n'
-
-                            continueFlag = false;
-                        }
-
-                    }
-                    if (i == program.length() - 1) {
-                        continueFlag = false;
-                    }
-                }
-            }
-
-            if(program.charAt(i) == '.'){
-                tokens.add(new token(".", lineNum, column, IToken.Kind.ERROR));
+            /* //INT_LIT && FLOAT_LIT
+            if (Character.isDigit(program.charAt(i)) || program.charAt(i) == '.') {
+                startCol = column;
+                char digitOrDot = program.charAt(i);
+                currTok += digitOrDot;
                 i++;
                 column++;
-            }
+
+                if (currTok.equals(".")) {
+                    // decimal point only -> ERROR
+                    currTok = "";
+                    tokens.add(new token (".", lineNum, startCol, IToken.Kind.ERROR));
+                    i++;
+                    column++;
+                }
+                else if (currTok.equals("0")) {
+                    // 0 could be an INT_LIT or FLOAT_LIT
+                    if (i < program.length() - 2) {
+                        if (program.charAt(i) == '.') {
+                            // 0 followed by . -> FLOAT_LIT
+                            currTok += ".";
+                            i++;
+                            column++;
+                            if (!Character.isDigit(program.charAt(i))) {
+                                tokens.add(new token (".", lineNum, column, IToken.Kind.ERROR));
+                            }
+                            else {
+                                while (Character.isDigit(program.charAt(i))) {
+                                    currTok += program.charAt(i);
+                                    i++;
+                                    column++;
+                                }
+                            }
+                        }
+                        else {
+                            tokens.add(new token("0", lineNum, startCol, IToken.Kind.INT_LIT));
+                        }
+                    }
+                    else {
+                        tokens.add(new token("0", lineNum, startCol, IToken.Kind.INT_LIT));
+                    }
+                }
+                else {
+                    // either INT_LIT or FLOAT_LIT starting with any non-zero digit
+                }
+             }
+            * */
 
             //INT-LIT && FLOAT LIT
-            if (Character.isDigit(program.charAt(i))) {
+            if (Character.isDigit(program.charAt(i)) || program.charAt(i) == '.') {
                 boolean safeFloat = false;
                 boolean Flo = false;
                 int startPos = column;
                 boolean litZero = false;
 
-                if(program.charAt(i) == '0' && program.charAt(i + 1)!= '.'){
+                if(program.charAt(i) == '0' && program.charAt(i + 1) != '.') {
                     litZero = true;
                 }
 
@@ -323,18 +339,15 @@ class lexer implements ILexer{
                }
 
                if(Flo && safeFloat){
-
-
                    try{
                        Float.valueOf(currTok);
                        tokens.add(new token(currTok, lineNum, startPos, IToken.Kind.FLOAT_LIT));
                    }catch (Exception e) {
                        tokens.add(new token(currTok, lineNum, startPos, IToken.Kind.ERROR));
                    }
-
                }
-                currTok = "";
-               }
+               currTok = "";
+            }
 
             //IDENTIFIERS AND RESERVED WORDS
             if (Character.isLetter(program.charAt(i))) {
@@ -350,7 +363,7 @@ class lexer implements ILexer{
                         tokens.add(new token(currTok, lineNum, startPos, IToken.Kind.BOOLEAN_LIT));
                     }
                     case "BLACK", "BLUE", "CYAN", "DARK_GRAY", "GRAY", "GREEN", "LIGHT_GRAY", "MAGENTA", "ORANGE", "PINK",
-                            "RED", "WHITE" -> {
+                            "RED", "WHITE", "YELLOW" -> {
                         tokens.add(new token(currTok, lineNum, startPos, IToken.Kind.COLOR_CONST));
                     }
                     case "if" -> {
