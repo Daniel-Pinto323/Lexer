@@ -402,7 +402,7 @@ public class LexerTests {
 		String input = """
 				0.32
 				00.15
-				10.030
+				10.030.32
 				""";
 		show(input);
 		ILexer lexer = getLexer(input);
@@ -410,10 +410,10 @@ public class LexerTests {
 		checkInt(lexer.next(), 0, 1, 0);
 		checkFloat(lexer.next(), (float) 0.15, 1, 1);
 		checkFloat(lexer.next(), (float) 10.030, 2, 0);
-		/*assertThrows(LexicalException.class, () -> {
+		assertThrows(LexicalException.class, () -> {
 			@SuppressWarnings("unused")
 			IToken token = lexer.next();
-		});*/
+		});
 	}
 
 	@Test
