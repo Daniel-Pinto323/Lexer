@@ -219,13 +219,11 @@ class lexer implements ILexer{
                 }
                 case '(' -> {
                     tokens.add(new token("(", lineNum, column, IToken.Kind.LPAREN));
-
                     i++;
                     column++;
                 }
                 case ')' -> {
                     tokens.add(new token(")", lineNum, column, IToken.Kind.RPAREN));
-
                     i++;
                     column++;
                 }
@@ -300,49 +298,49 @@ class lexer implements ILexer{
             //IDENTIFIERS AND RESERVED WORDS
             if (Character.isLetter(program.charAt(i))) {
                 //if the character is a letter
-                int startPos = column;
-                while (Character.isLetter(program.charAt(i)) || Character.isDigit(program.charAt(i))) {
+                startCol = column;
+                while (Character.isLetter(program.charAt(i)) || Character.isDigit(program.charAt(i)) || program.charAt(i) == '_') {
                     currTok += program.charAt(i);
                     i++;
                     column++;
                 }
                 switch(currTok){
                     case "true", "false" -> {
-                        tokens.add(new token(currTok, lineNum, startPos, IToken.Kind.BOOLEAN_LIT));
+                        tokens.add(new token(currTok, lineNum, startCol, IToken.Kind.BOOLEAN_LIT));
                     }
                     case "BLACK", "BLUE", "CYAN", "DARK_GRAY", "GRAY", "GREEN", "LIGHT_GRAY", "MAGENTA", "ORANGE", "PINK",
-                            "RED", "WHITE" -> {
-                        tokens.add(new token(currTok, lineNum, startPos, IToken.Kind.COLOR_CONST));
+                            "RED", "WHITE", "YELLOW" -> {
+                        tokens.add(new token(currTok, lineNum, startCol, IToken.Kind.COLOR_CONST));
                     }
                     case "if" -> {
-                        tokens.add(new token(currTok, lineNum, startPos, IToken.Kind.KW_IF));
+                        tokens.add(new token(currTok, lineNum, startCol, IToken.Kind.KW_IF));
                     }
                     case "fi" -> {
-                        tokens.add(new token(currTok, lineNum, startPos, IToken.Kind.KW_FI));
+                        tokens.add(new token(currTok, lineNum, startCol, IToken.Kind.KW_FI));
                     }
                     case "else" -> {
-                        tokens.add(new token(currTok, lineNum, startPos, IToken.Kind.KW_ELSE));
+                        tokens.add(new token(currTok, lineNum, startCol, IToken.Kind.KW_ELSE));
                     }
                     case "write" -> {
-                        tokens.add(new token(currTok, lineNum, startPos, IToken.Kind.KW_WRITE));
+                        tokens.add(new token(currTok, lineNum, startCol, IToken.Kind.KW_WRITE));
                     }
                     case "console" -> {
-                        tokens.add(new token(currTok, lineNum, startPos, IToken.Kind.KW_CONSOLE));
+                        tokens.add(new token(currTok, lineNum, startCol, IToken.Kind.KW_CONSOLE));
                     }
                     case "void" -> {
-                        tokens.add(new token(currTok, lineNum, startPos, IToken.Kind.KW_VOID));
+                        tokens.add(new token(currTok, lineNum, startCol, IToken.Kind.KW_VOID));
                     }
                     case "int", "float", "string", "boolean", "color", "image" -> {
-                        tokens.add(new token(currTok, lineNum, startPos, IToken.Kind.TYPE));
+                        tokens.add(new token(currTok, lineNum, startCol, IToken.Kind.TYPE));
                     }
                     case "getRed", "getGreen", "getBlue" -> {
-                        tokens.add(new token(currTok, lineNum, startPos, IToken.Kind.COLOR_OP));
+                        tokens.add(new token(currTok, lineNum, startCol, IToken.Kind.COLOR_OP));
                     }
                     case "getWidth", "getHeight" -> {
-                        tokens.add(new token(currTok, lineNum, startPos, IToken.Kind.IMAGE_OP));
+                        tokens.add(new token(currTok, lineNum, startCol, IToken.Kind.IMAGE_OP));
                     }
                     default -> {
-                        tokens.add(new token(currTok, lineNum, startPos, IToken.Kind.IDENT));
+                        tokens.add(new token(currTok, lineNum, startCol, IToken.Kind.IDENT));
                     }
                 }
                 currTok = "";

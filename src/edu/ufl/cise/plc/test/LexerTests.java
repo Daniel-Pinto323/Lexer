@@ -38,6 +38,7 @@ public class LexerTests {
 		assertEquals(new IToken.SourceLocation(expectedLine,expectedColumn), t.getSourceLocation());
 	}
 
+	//check that the token has the expected kind, position, and string
 	void checkToken(IToken t, Kind expectedKind, int expectedLine, int expectedColumn, String expectedString) {
 		assertEquals(expectedKind, t.getKind());
 		assertEquals(new IToken.SourceLocation(expectedLine,expectedColumn), t.getSourceLocation());
@@ -62,12 +63,24 @@ public class LexerTests {
 		assertEquals(expectedValue, t.getIntValue());	
 	}
 	
-	//check that this token  is an INT_LIT with expected int value and position
+	//check that this token is an INT_LIT with expected int value and position
 	void checkInt(IToken t, int expectedValue, int expectedLine, int expectedColumn) {
 		checkInt(t,expectedValue);
 		assertEquals(new IToken.SourceLocation(expectedLine,expectedColumn), t.getSourceLocation());		
 	}
-	
+
+	//check that this token is a FLOAT_LIT with expected float value
+	void checkFloat(IToken t, float expectedValue) {
+		assertEquals(Kind.FLOAT_LIT, t.getKind());
+		assertEquals(expectedValue, t.getFloatValue());
+	}
+
+	//check that this token is a FLOAT_LIT with expected float value and position
+	void checkFloat(IToken t, float expectedValue, int expectedLine, int expectedColumn) {
+		checkFloat(t, expectedValue);
+		assertEquals(new IToken.SourceLocation(expectedLine,expectedColumn), t.getSourceLocation());
+	}
+
 	//check that this token is the EOF token
 	void checkEOF(IToken t) {
 		checkToken(t, Kind.EOF);
@@ -271,10 +284,10 @@ public class LexerTests {
 				BLACK
 				BLUE
 				CYAN
-				DARK_GREY
-				GREY
+				DARK_GRAY
+				GRAY
 				GREEN
-				LIGHT_GREY
+				LIGHT_GRAY
 				MAGENTA
 				ORANGE
 				PINK
@@ -307,10 +320,10 @@ public class LexerTests {
 		checkToken(lexer.next(), Kind.COLOR_CONST, 12, 0, "BLACK");
 		checkToken(lexer.next(), Kind.COLOR_CONST, 13, 0, "BLUE");
 		checkToken(lexer.next(), Kind.COLOR_CONST, 14, 0, "CYAN");
-		checkToken(lexer.next(), Kind.COLOR_CONST, 15, 0, "DARK_GREY");
-		checkToken(lexer.next(), Kind.COLOR_CONST, 16, 0, "GREY");
+		checkToken(lexer.next(), Kind.COLOR_CONST, 15, 0, "DARK_GRAY");
+		checkToken(lexer.next(), Kind.COLOR_CONST, 16, 0, "GRAY");
 		checkToken(lexer.next(), Kind.COLOR_CONST, 17, 0, "GREEN");
-		checkToken(lexer.next(), Kind.COLOR_CONST, 18, 0, "LIGHT_GREY");
+		checkToken(lexer.next(), Kind.COLOR_CONST, 18, 0, "LIGHT_GRAY");
 		checkToken(lexer.next(), Kind.COLOR_CONST, 19, 0, "MAGENTA");
 		checkToken(lexer.next(), Kind.COLOR_CONST, 20, 0, "ORANGE");
 		checkToken(lexer.next(), Kind.COLOR_CONST, 21, 0, "PINK");
@@ -325,5 +338,25 @@ public class LexerTests {
 		checkToken(lexer.next(), Kind.KW_WRITE, 30, 0, "write");
 		checkToken(lexer.next(), Kind.KW_CONSOLE, 31, 0, "console");
 		checkEOF(lexer.next());
+	}
+
+	//Example for testing input with an illegal float
+	@Test
+	void testIntFloatError() throws LexicalException {
+		String input = """
+				0.32
+				00.15
+				10.030.32
+				""";
+		show(input);
+		ILexer lexer = getLexer(input);
+		checkFloat(lexer.next(), (float) 0.32, 0, 0);
+		checkInt(lexer.next(), 0, 1, 0);
+		checkFloat(lexer.next(), (float) 0.15, 1, 1);
+		checkFloat(lexer.next(), (float) 10.030, 2, 0);
+		assertThrows(LexicalException.class, () -> {
+			@SuppressWarnings("unused")
+			IToken token = lexer.next();
+		});
 	}
 }
