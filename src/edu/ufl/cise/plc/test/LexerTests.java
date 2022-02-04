@@ -97,6 +97,15 @@ public class LexerTests {
 		checkEOF(lexer.next());
 	}
 
+	//empty STRING_LIT
+	@Test
+	void testOnlyEmptyStringLit() throws LexicalException {
+		String input = "\"\"";
+		show(input);
+		ILexer lexer = getLexer(input);
+		checkToken(lexer.next(), Kind.STRING_LIT, 0, 0, "\"\"");
+	}
+
 	//A couple of single character tokens
 	@Test
 	void testSingleChar0() throws LexicalException {
@@ -109,6 +118,23 @@ public class LexerTests {
 		checkToken(lexer.next(), Kind.PLUS, 0, 0);
 		checkToken(lexer.next(), Kind.MINUS, 1, 0);
 		checkEOF(lexer.next());
+	}
+
+	//Testing multi-ine string input
+	@Test
+	public void multiLineString() throws LexicalException{
+		String input = """
+			string a = "test
+			52";
+			a
+			""";
+		ILexer lexer = getLexer(input);
+		checkToken(lexer.next(), Kind.TYPE, 0, 0, "string");
+		checkIdent(lexer.next(), "a", 0, 7);
+		checkToken(lexer.next(), Kind.ASSIGN, 0, 9);
+		checkToken(lexer.next(), Kind.STRING_LIT, 0, 11, "\"test\n52\"");
+		checkToken(lexer.next(), Kind.SEMI, 1, 3);
+		checkIdent(lexer.next(), "a", 2, 0);
 	}
 
 	//comments should be skipped
@@ -127,9 +153,18 @@ public class LexerTests {
 		checkEOF(lexer.next());
 	}
 
+	//EOF should be detected even after comment lines
 	@Test
 	public void testEOF1() throws LexicalException {
 		String input = "#ThisEndsInEOF";
+		show(input);
+		ILexer lexer = getLexer(input);
+		checkEOF(lexer.next());
+	}
+
+	@Test
+	public void testCommentEOF2() throws LexicalException {
+		String input = "#";
 		show(input);
 		ILexer lexer = getLexer(input);
 		checkEOF(lexer.next());
@@ -171,6 +206,16 @@ public class LexerTests {
 		checkEOF(lexer.next());
 	}
 
+	//Testing keywords within IDENTs
+	@Test
+	void testKeywordWithinIdent() throws LexicalException {
+		String input = "stringVar\nifBlah\nREDfoo";
+		show(input);
+		ILexer lexer = getLexer(input);
+		checkToken(lexer.next(), Kind.IDENT, 0, 0);
+		checkToken(lexer.next(), Kind.IDENT, 1, 0);
+		checkToken(lexer.next(), Kind.IDENT, 2, 0);
+	}
 
 	@Test
 	public void testEquals0() throws LexicalException {
@@ -370,20 +415,21 @@ public class LexerTests {
 	}
 
 	@Test
-	public void testCodeExample() throws LexicalException {
+	public void testCodeExample() throws LexicalException
+	{
 		String input = """
-					string a = "hello\\nworld";
-					int size = 11;
-					string b = "";
-					boolean display = true;
-					
-				for (int i = size - 1;i >= 0; i++) [
-					b = b + a[i];
-				]
+                string a = "hello\\nworld";
+                int size = 11;
+                string b = "";
+                boolean display = true;
+                 
+                for (int i = size - 1;i >= 0; i++) [
+                    b = b + a[i];
+                ]
 
-					if (display == true)
-					print(b);
-					""";
+                if (display == true)
+                print(b);
+                """;
 		show(input);
 		ILexer lexer = getLexer(input);
 		checkToken(lexer.next(), Kind.TYPE, 0, 0, "string");

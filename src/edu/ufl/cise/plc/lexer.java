@@ -242,7 +242,6 @@ class lexer implements ILexer{
                     i++;
                     column++;
                 }
-
             }
 
             //INT-LIT
@@ -315,24 +314,6 @@ class lexer implements ILexer{
                 currTok = "";
             }
 
-            // HANDLING WHITE-SPACE
-            switch(program.charAt(i)) {
-                case '\n' -> {
-                    lineNum++;
-                    column = 0;
-                    i++;
-                }
-                case '\r' -> {
-                    lineNum++;
-                    column = 0;
-                    i += 2; // to account for the assumption that '\r' will always be followed by '\n'
-                }
-                case ' ' -> {
-                    i++;
-                    column++;
-                }
-            }
-
             // HANDLING COMMENTS STARTING WITH CHARACTER '#'
             if (program.charAt(i) == '#') {
                 continueFlag = true;
@@ -346,7 +327,6 @@ class lexer implements ILexer{
                             i++;
 
                             continueFlag = false;
-
                         }
                         case '\r' -> {
                             lineNum++;
@@ -355,11 +335,30 @@ class lexer implements ILexer{
 
                             continueFlag = false;
                         }
-
                     }
                     if (i == program.length() - 1) {
                         continueFlag = false;
                         i++;
+                    }
+                }
+            }
+
+            // HANDLING WHITE-SPACE
+            if (i < program.length()) {
+                switch (program.charAt(i)) {
+                    case '\n' -> {
+                        lineNum++;
+                        column = 0;
+                        i++;
+                    }
+                    case '\r' -> {
+                        lineNum++;
+                        column = 0;
+                        i += 2; // to account for the assumption that '\r' will always be followed by '\n'
+                    }
+                    case ' ' -> {
+                        i++;
+                        column++;
                     }
                 }
             }
